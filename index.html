@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOP MASTER — Умная система управления магазином</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --navy: #1a2744;
+            --navy2: #243058;
+            --blue: #2563eb;
+            --blue2: #3b82f6;
+            --green: #16a34a;
+            --green2: #22c55e;
+            --amber: #d97706;
+            --red: #dc2626;
+            --bg: #f8fafc;
+            --bg2: #f1f5f9;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text2: #475569;
+            --text3: #94a3b8;
+            --radius: 12px;
+            --radius2: 8px;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* Анимации */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .animate { animation: fadeInUp 0.8s ease-out forwards; }
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .delay-3 { animation-delay: 0.3s; opacity: 0; }
+        .delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+        /* NAV */
+        nav {
+            background: var(--navy);
+            padding: 0 40px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .nav-logo {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo span { color: var(--blue2); }
+        
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active { color: #fff; }
+
+        /* КАСТОМНЫЙ ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА С ФЛАГАМИ */
+        .custom-lang-selector {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+            user-select: none;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .lang-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none;
+            flex-direction: column;
+            min-width: 140px;
+            overflow: hidden;
+            z-index: 1001;
+        }
+
+        .lang-dropdown.active {
+            display: flex;
+        }
+
+        .lang-option {
+            padding: 10px 16px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+        }
+
+        .lang-option:hover {
+            background: var(--bg2);
+            color: var(--blue);
+        }
+
+        .nav-cta {
+            background: var(--blue);
+            color: #fff;
+            padding: 9px 22px;
+            border-radius: var(--radius2);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .nav-cta:hover {
+            background: var(--blue2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        }
+
+        /* HERO */
+        .hero {
+            background: var(--navy);
+            padding: 100px 40px 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(37,99,235,0.25), transparent);
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(59,130,246,0.2);
+            color: #93c5fd;
+            border: 1px solid rgba(59,130,246,0.3);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            animation: pulse 2s infinite;
+            position: relative;
+        }
+
+        .hero h1 {
+            color: #fff;
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .hero h1 em { color: var(--blue2); font-style: normal; }
+
+        .hero-sub {
+            color: rgba(255,255,255,0.7);
+            font-size: 20px;
+            max-width: 650px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+            font-weight: 400;
+            position: relative;
+        }
+
+        .hero-btns {
+            display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative;
+        }
+
+        .btn-primary {
+            background: var(--blue); color: #fff; padding: 16px 36px;
+            border-radius: var(--radius2); font-size: 16px; font-weight: 700;
+            cursor: pointer; border: none; transition: all 0.2s; display: inline-block;
+        }
+        .btn-primary:hover { background: var(--blue2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.4); }
+
+        .btn-outline {
+            background: rgba(255,255,255,0.05); color: #fff; padding: 16px 36px;
+            border-radius: var(--radius2); font-size: 16px; font-weight: 600;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; display: inline-block;
+        }
+        .btn-outline:hover { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); }
+
+        /* SECTION */
+        .section { padding: 100px 40px; max-width: 1200px; margin: 0 auto; }
+        .section-label { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; text-align: center; }
+        .section-title { font-size: clamp(32px, 4vw, 46px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.2; color: var(--text); margin-bottom: 20px; text-align: center; }
+        .section-sub { color: var(--text2); font-size: 18px; line-height: 1.6; max-width: 650px; margin: 0 auto 60px; text-align: center; }
+
+        /* FEATURES */
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 40px; }
+        .feature-card { background: var(--card); padding: 40px 30px; border-radius: 16px; border: 1px solid var(--border); transition: all 0.3s; position: relative; overflow: hidden; }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); border-color: #bfdbfe; }
+        .feature-icon { font-size: 40px; margin-bottom: 24px; display: inline-block; background: var(--bg2); width: 80px; height: 80px; line-height: 80px; text-align: center; border-radius: 20px; }
+        .feature-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+        .feature-card p { color: var(--text2); font-size: 15px; line-height: 1.6; }
+
+        /* PRICING */
+        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 40px; }
+        .pricing-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 40px 32px; transition: all 0.3s; position: relative; display: flex; flex-direction: column; }
+        .pricing-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); }
+        .pricing-card.popular { border: 2px solid var(--blue); box-shadow: 0 16px 40px rgba(37, 99, 235, 0.12); transform: scale(1.02); }
+        .pricing-card.popular:hover { transform: scale(1.02) translateY(-5px); }
+        .pricing-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--blue); color: #fff; padding: 6px 20px; border-radius: 100px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 4px 12px rgba(37,99,235,0.3); white-space: nowrap; }
+        .pricing-badge.free { background: var(--green2); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); }
+        .pricing-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; color: var(--text); }
+        .pricing-price { font-size: 46px; font-weight: 800; color: var(--text); margin-bottom: 8px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; letter-spacing: -1px; }
+        .old-price { font-size: 36px; color: var(--text3); text-decoration: line-through; font-weight: 700; margin-right: 4px; letter-spacing: -1px; }
+        .pricing-price span:not(.old-price) { font-size: 16px; color: var(--text3); font-weight: 500; letter-spacing: normal; }
+        .discount-note { font-size: 13px; color: var(--green); background: rgba(22, 163, 74, 0.1); padding: 6px 12px; border-radius: 6px; font-weight: 700; margin-bottom: 24px; display: inline-table; }
+        .pricing-desc { color: var(--text2); font-size: 15px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); line-height: 1.5; }
+        .pricing-features { list-style: none; margin-bottom: 32px; flex-grow: 1; }
+        .pricing-features li { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; color: var(--text2); font-size: 15px; line-height: 1.5; }
+        .pricing-features li::before { content: '✓'; color: var(--blue); font-weight: 800; background: rgba(37,99,235,0.1); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; font-size: 12px; }
+        .btn-block { width: 100%; text-align: center; display: block; padding: 16px; border-radius: 8px; font-weight: 700; transition: 0.2s; text-decoration: none;}
+
+        /* GALLERY & OTHER STYLES */
+        .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .screenshot-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s; position: relative; cursor: pointer; }
+        .screenshot-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--blue), var(--blue2)); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; z-index: 1; }
+        .screenshot-card:hover { border-color: #bfdbfe; transform: translateY(-4px); box-shadow: 0 12px 32px rgba(37,99,235,0.12); }
+        .screenshot-card:hover::before { transform: scaleX(1); }
+        .card-image { width: 100%; height: 300px; background: var(--bg2); overflow: hidden; position: relative; border-bottom: 1px solid var(--border); }
+        .card-image img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.3s; }
+        .screenshot-card:hover .card-image img { transform: scale(1.02); }
+        .zoom-overlay { position: absolute; inset: 0; background: rgba(26,39,68,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        .screenshot-card:hover .zoom-overlay { opacity: 1; }
+        .zoom-icon { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+        .card-info { padding: 28px; }
+        .card-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+        .card-desc { color: var(--text2); font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+        .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag { background: var(--bg2); color: var(--text2); font-size: 11px; padding: 4px 12px; border-radius: 100px; font-weight: 600; }
+
+        .cta-section { background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%); padding: 100px 40px; text-align: center; }
+        .cta-content { max-width: 700px; margin: 0 auto; }
+        .cta-content h2 { color: #fff; font-size: clamp(32px, 4vw, 48px); font-weight: 800; letter-spacing: -1.5px; margin-bottom: 20px; }
+        .cta-content p { color: rgba(255,255,255,0.7); font-size: 18px; margin-bottom: 40px; line-height: 1.6; }
+
+        footer { background: var(--navy); padding: 60px 40px 40px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; color: rgba(255,255,255,0.5); flex-wrap: wrap; gap: 20px; }
+        .footer-links { display: flex; gap: 24px; }
+        .footer-links a { color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .footer-links a:hover { color: #fff; }
+
+        .lightbox { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.96); z-index: 1000; align-items: center; justify-content: center; padding: 40px; }
+        .lightbox.active { display: flex; }
+        .lightbox-content { max-width: 90vw; max-height: 90vh; position: relative; }
+        .lightbox-content img { width: 100%; height: auto; max-height: 80vh; object-fit: contain; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .lightbox-close, .lightbox-nav { position: absolute; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        .lightbox-close { top: -40px; right: 0; width: 36px; height: 36px; font-size: 18px; }
+        .lightbox-nav { top: 50%; transform: translateY(-50%); width: 48px; height: 48px; font-size: 24px; }
+        .lightbox-close:hover, .lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+        .lightbox-prev { left: -60px; }
+        .lightbox-next { right: -60px; }
+        .lightbox-caption { color: #fff; text-align: center; margin-top: 16px; font-size: 16px; font-weight: 600; }
+
+        /* ИИ-ЧАТ СТИЛИ */
+        .chat-toggle { position: fixed; bottom: 30px; right: 30px; background: var(--blue); color: white; border: none; border-radius: 100px; padding: 14px 24px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 24px rgba(37,99,235,0.3); z-index: 1000; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-family: 'Manrope', sans-serif;}
+        .chat-toggle:hover { background: var(--blue2); transform: translateY(-2px); }
+        .chat-window { position: fixed; bottom: 90px; right: 30px; width: 420px; height: 550px; background: var(--card); border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); display: none; flex-direction: column; overflow: hidden; z-index: 1000; border: 1px solid var(--border); }
+        .chat-window.active { display: flex; animation: fadeInUp 0.3s ease-out forwards; }
+        .chat-header { background: var(--navy); color: white; padding: 16px 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center;}
+        .chat-header-actions { display: flex; gap: 12px; align-items: center; }
+        .chat-clear { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 13px; cursor: pointer; text-decoration: underline; }
+        .chat-clear:hover { color: white; }
+        .chat-messages { flex-grow: 1; padding: 20px; overflow-y: auto; background: var(--bg); display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+        .message.bot { background: white; border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .message.user { background: var(--blue); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chat-input-area { padding: 16px; background: white; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+        .chat-input-area input { flex-grow: 1; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-family: 'Manrope', sans-serif; }
+        .chat-input-area button { background: var(--blue); color: white; border: none; border-radius: 8px; width: 46px; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+
+        @media (max-width: 992px) { .features-grid, .pricing-grid { grid-template-columns: 1fr; max-width: 500px; margin-left: auto; margin-right: auto; } .pricing-card.popular { transform: none; } }
+        @media (max-width: 768px) { .gallery-grid { grid-template-columns: 1fr; } .section, .hero { padding: 60px 20px; } nav { padding: 12px 20px; } .nav-links a { display: none; } .chat-window { width: calc(100% - 40px); right: 20px; bottom: 80px; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#" class="nav-logo">
+            🛒 SHOP<span>MASTER</span>
+        </a>
+        <div class="nav-links">
+            <a href="#features" data-i18n="nav_features">Возможности</a>
+            <a href="#interface" data-i18n="nav_interface">Интерфейс</a>
+            <a href="#pricing" data-i18n="nav_pricing">Тарифы</a>
+            <a href="download.html" data-i18n="nav_download">Скачать</a>
+            
+            <div class="custom-lang-selector" id="lang-selector">
+                <div class="lang-btn" id="lang-btn">
+                    EN
+                </div>
+                <div class="lang-dropdown" id="lang-dropdown">
+                    <div class="lang-option" data-lang="en">English (EN)</div>
+                    <div class="lang-option" data-lang="ru">Русский (RU)</div>
+                    <div class="lang-option" data-lang="ka">ქართული (GE)</div>
+                    <div class="lang-option" data-lang="hy">Հայերեն (AM)</div>
+                </div>
+            </div>
+
+            <button class="nav-cta" onclick="window.location.href='download.html'" data-i18n="nav_btn">
+                Скачать программу
+            </button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-badge animate" data-i18n="hero_badge">🚀 Версия 2.0 уже доступна</div>
+        <h1 class="animate delay-1" data-i18n="hero_title">Автоматизация торговли с<br><em>SHOP MASTER</em></h1>
+        <p class="hero-sub animate delay-2" data-i18n="hero_sub">
+            Мощная система для управления магазином: касса, склад, база клиентов и аналитика в едином интерфейсе. Надежная архитектура и интеграция с Telegram.
+        </p>
+        <div class="hero-btns animate delay-3">
+            <a href="#features" class="btn-primary" data-i18n="btn_more">Узнать больше ↓</a>
+            <a href="download.html" class="btn-outline" data-i18n="btn_free">Скачать бесплатно</a>
+        </div>
+    </section>
+
+    <section id="features" class="section bg-white">
+        <div class="section-label animate" data-i18n="feat_label">Почему выбирают SHOP MASTER</div>
+        <h2 class="section-title animate delay-1" data-i18n="feat_title">Превратите хаос в систему, которая работает на вас</h2>
+        <p class="section-sub animate delay-2" data-i18n="feat_sub">
+            Забудьте о недостачах, тетрадках и рутине. Программа берет на себя весь контроль, защищает ваши деньги и помогает зарабатывать больше, даже когда вас нет в магазине.
+        </p>
+        
+        <div class="features-grid">
+            <div class="feature-card animate delay-1">
+                <div class="feature-icon">🚀</div>
+                <h3 data-i18n="f1_title">Касса без очередей и ошибок</h3>
+                <p data-i18n="f1_desc">Ускорьте обслуживание покупателей в 2 раза. Никаких случайных ошибок в сдаче или путаницы — каждая копейка строго учтена, а клиенты уходят довольными.</p>
+            </div>
+            
+            <div class="feature-card animate delay-2">
+                <div class="feature-icon">🛡️</div>
+                <h3 data-i18n="f2_title">Тотальный контроль персонала</h3>
+                <p data-i18n="f2_desc">Надежная защита от воровства и «левых» чеков. Настройте права доступа так, чтобы кассир только продавал, а доступ к финансам, складу и удалению чеков был только у вас.</p>
+            </div>
+            
+            <div class="feature-card animate delay-3">
+                <div class="feature-icon">🧲</div>
+                <h3 data-i18n="f3_title">Магнит для новых покупок</h3>
+                <p data-i18n="f3_desc">Умная система скидок и программ лояльности заставляет клиентов возвращаться снова и снова. Настраивайте акции, которые автоматически увеличивают средний чек.</p>
+            </div>
+            
+            <div class="feature-card animate delay-1">
+                <div class="feature-icon">🧠</div>
+                <h3 data-i18n="f4_title">ИИ-помощник закупщика</h3>
+                <p data-i18n="f4_desc">Хватит замораживать оборотные средства в неликвиде! Умный алгоритм сам анализирует тренды продаж и подсказывает, что именно нужно закупить сегодня.</p>
+            </div>
+            
+            <div class="feature-card animate delay-2">
+                <div class="feature-icon">☁️</div>
+                <h3 data-i18n="f5_title">Непробиваемая защита бизнеса</h3>
+                <p data-i18n="f5_desc">Поломка жесткого диска или вирус больше не уничтожат ваш бизнес. Безотказная архитектура и автоматический бэкап гарантируют сохранность базы данных.</p>
+            </div>
+            
+            <div class="feature-card animate delay-3">
+                <div class="feature-icon">📱</div>
+                <h3 data-i18n="f6_title">Бизнес в вашем кармане</h3>
+                <p data-i18n="f6_desc">Управляйте магазином из любой точки мира. Telegram-бот мгновенно пришлет отчет о закрытии смены прямо в ваш смартфон. Вы отдыхаете — бизнес работает.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="section">
+        <div class="section-label animate" data-i18n="price_label">Тарифы</div>
+        <h2 class="section-title animate delay-1" data-i18n="price_title">Прозрачные цены без скрытых платежей</h2>
+        <p class="section-sub animate delay-2" data-i18n="price_sub">
+            Выберите план, который идеально подходит для масштабов вашего бизнеса. Оплата окупается сэкономленными нервами и предотвращенными недостачами.
+        </p>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card animate delay-1">
+                <div class="pricing-badge free" data-i18n="p1_badge">30 дней бесплатно</div>
+                <div class="pricing-title" data-i18n="p1_title">Старт</div>
+                <div class="pricing-price"><span class="old-price">$15</span>$10 <span data-i18n="p_month">/ мес</span></div>
+                <div class="discount-note" data-i18n="p_discount">* Скидка при оплате от 6 месяцев</div>
+                <div class="pricing-desc" data-i18n="p1_desc">Идеально для небольших магазинов и начинающих предпринимателей.</div>
+                <ul class="pricing-features">
+                    <li data-i18n="pf_1">1 кассовое место</li>
+                    <li data-i18n="pf_2">Базовый учет товаров</li>
+                    <li data-i18n="pf_3">Поддержка сканера штрих-кодов</li>
+                    <li data-i18n="pf_4">Локальная база данных</li>
+                    <li data-i18n="pf_5">Стандартные отчеты по продажам</li>
+                </ul>
+                <a href="download.html" class="btn-outline btn-block" style="color: var(--text); border-color: var(--border);" data-i18n="btn_start_free">Начать бесплатно</a>
+            </div>
+
+            <div class="pricing-card popular animate delay-2">
+                <div class="pricing-badge" data-i18n="p2_badge">Хит продаж</div>
+                <div class="pricing-title" data-i18n="p2_title">Профи</div>
+                <div class="pricing-price"><span class="old-price">$29</span>$15 <span data-i18n="p_month">/ мес</span></div>
+                <div class="discount-note" data-i18n="p_discount">* Скидка при оплате от 6 месяцев</div>
+                <div class="pricing-desc" data-i18n="p2_desc">Полный контроль, автоматизация и максимальная безопасность данных.</div>
+                <ul class="pricing-features">
+                    <li data-i18n="pf_all"><b>Всё из тарифа «Старт»</b></li>
+                    <li data-i18n="pf_6">Неограниченное количество касс</li>
+                    <li data-i18n="pf_7">Многопользовательский режим</li>
+                    <li data-i18n="pf_8">Интеграция с Telegram-ботом</li>
+                    <li data-i18n="pf_9">Облачный бэкап каждые 24 часа</li>
+                </ul>
+                <a href="download.html" class="btn-primary btn-block" data-i18n="btn_choose_pro">Выбрать Профи</a>
+            </div>
+
+            <div class="pricing-card animate delay-3">
+                <div class="pricing-title" data-i18n="p3_title">Индивидуальный</div>
+                <div class="pricing-price" data-i18n="p3_price">Свой проект</div>
+                <div class="pricing-desc" data-i18n="p3_desc">Для торговых сетей и бизнеса с нестандартными процессами.</div>
+                <ul class="pricing-features">
+                    <li data-i18n="pf_6">Неограниченное количество касс</li>
+                    <li data-i18n="pf_10">Специфическое оборудование</li>
+                    <li data-i18n="pf_11">Кастомные отчеты</li>
+                    <li data-i18n="pf_12">БД на вашем сервере</li>
+                    <li data-i18n="pf_13">Персональный менеджер 24/7</li>
+                </ul>
+                <a href="download.html" class="btn-outline btn-block" style="color: var(--text); border-color: var(--border);" data-i18n="btn_contact_us">Связаться с нами</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="interface" class="section">
+        <div class="section-label animate" data-i18n="int_label">Интерфейс</div>
+        <h2 class="section-title animate delay-1" data-i18n="int_title">Современный и понятный дизайн</h2>
+        <p class="section-sub animate delay-2" data-i18n="int_sub">Мы сделали интерфейс таким, чтобы обучение новых сотрудников занимало не более 15 минут.</p>
+        
+        <div class="gallery-grid">
+            <div class="screenshot-card animate" onclick="openLightbox(0)">
+                <div class="card-image"><img src="Start.png" alt="Dashboard"><div class="zoom-overlay"><div class="zoom-icon">🔍</div></div></div>
+                <div class="card-info">
+                    <div class="card-title" data-i18n="g1_title">📊 Панель управления</div>
+                    <div class="card-desc" data-i18n="g1_desc">Вся информация о продажах, складе и прибыли на одном экране.</div>
+                </div>
+            </div>
+            <div class="screenshot-card animate delay-1" onclick="openLightbox(1)">
+                <div class="card-image"><img src="Kassa.png" alt="POS"><div class="zoom-overlay"><div class="zoom-icon">🔍</div></div></div>
+                <div class="card-info">
+                    <div class="card-title" data-i18n="g2_title">🛒 Интуитивная касса</div>
+                    <div class="card-desc" data-i18n="g2_desc">Быстрое сканирование штрих-кодов, гибкие скидки и мульти-валютность.</div>
+                </div>
+            </div>
+            <div class="screenshot-card animate delay-2" onclick="openLightbox(2)">
+                <div class="card-image"><img src="Sklad.png" alt="Inventory"><div class="zoom-overlay"><div class="zoom-icon">🔍</div></div></div>
+                <div class="card-info">
+                    <div class="card-title" data-i18n="g3_title">📦 Управление складом</div>
+                    <div class="card-desc" data-i18n="g3_desc">Контроль сроков годности и генерация новых штрих-кодов в пару кликов.</div>
+                </div>
+            </div>
+            <div class="screenshot-card animate delay-3" onclick="openLightbox(3)">
+                <div class="card-image"><img src="Marketing.png" alt="Marketing"><div class="zoom-overlay"><div class="zoom-icon">🔍</div></div></div>
+                <div class="card-info">
+                    <div class="card-title" data-i18n="g4_title">👥 CRM и маркетинг</div>
+                    <div class="card-desc" data-i18n="g4_desc">База клиентов, система лояльности с баллами и рассылка.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="download" class="cta-section">
+        <div class="cta-content">
+            <h2 class="animate" data-i18n="cta_title">Готовы вывести бизнес на новый уровень?</h2>
+            <p class="animate delay-1" data-i18n="cta_sub">Установите SHOP MASTER сегодня и получите полный контроль над своим магазином.</p>
+            <a href="download.html" class="btn-primary animate delay-2" style="font-size: 18px; padding: 18px 48px;" data-i18n="btn_goto_download">
+                Перейти к скачиванию →
+            </a>
+            <div style="margin-top: 16px; color: rgba(255,255,255,0.4); font-size: 13px;" class="animate delay-3" data-i18n="cta_note">
+                Версия для Windows • Linux (Скоро) • Требуется PostgreSQL
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="nav-logo">🛒 SHOP<span>MASTER</span></div>
+            <div class="footer-links">
+                <a href="#features" data-i18n="nav_features">Возможности</a>
+                <a href="#pricing" data-i18n="nav_pricing">Тарифы</a>
+                <a href="download.html" data-i18n="nav_download">Скачать</a>
+            </div>
+            <div style="color: rgba(255,255,255,0.3); font-size: 14px;">© 2024 SHOP MASTER. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <button id="chat-toggle" class="chat-toggle" style="display: none !important;">
+        <span data-i18n="chat_button">🤖 ИИ-Помощник</span>
+    </button>
+    
+    <div id="chat-window" class="chat-window">
+        <div class="chat-header">
+            <div data-i18n="chat_title">🤖 ИИ-Помощник ShopMaster</div>
+            <div class="chat-header-actions">
+                <button id="chat-clear" class="chat-clear" data-i18n="chat_clear">Очистить</button>
+                <button id="chat-close" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+        </div>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Введите ваш вопрос..." data-i18n-placeholder="chat_placeholder" onkeypress="handleEnter(event)">
+            <button onclick="sendMessage()" id="send-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <button class="lightbox-close" onclick="event.stopPropagation(); closeLightbox()">✕</button>
+            <button class="lightbox-nav lightbox-prev" onclick="event.stopPropagation(); navigate(-1)">‹</button>
+            <button class="lightbox-nav lightbox-next" onclick="event.stopPropagation(); navigate(1)">›</button>
+            <img src="" alt="" id="lightbox-img">
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. СЛОВАРЬ ПЕРЕВОДОВ
+        // ==========================================
+        const i18n = {
+            ru: {
+                nav_features: "Возможности", nav_interface: "Интерфейс", nav_pricing: "Тарифы", nav_download: "Скачать и Чат", nav_btn: "Скачать программу",
+                hero_badge: "🚀 Версия 2.0 уже доступна", hero_title: "Автоматизация торговли с<br><em>SHOP MASTER</em>", hero_sub: "Мощная система для управления магазином: касса, склад, база клиентов и аналитика в едином интерфейсе.",
+                btn_more: "Узнать больше ↓", btn_free: "Скачать бесплатно",
+                feat_label: "Почему выбирают SHOP MASTER", feat_title: "Превратите хаос в систему, которая работает на вас", feat_sub: "Забудьте о недостачах и рутине. Программа берет на себя весь контроль и защищает ваши деньги.",
+                f1_title: "Касса без очередей и ошибок", f1_desc: "Ускорьте обслуживание покупателей в 2 раза. Никаких случайных ошибок в сдаче — каждая копейка строго учтена.",
+                f2_title: "Тотальный контроль персонала", f2_desc: "Надежная защита от воровства. Настройте права доступа так, чтобы доступ к финансам был только у вас.",
+                f3_title: "Магнит для новых покупок", f3_desc: "Умная система скидок заставляет клиентов возвращаться снова. Настраивайте акции, увеличивающие средний чек.",
+                f4_title: "ИИ-помощник закупщика", f4_desc: "Умный алгоритм анализирует тренды продаж и подсказывает, что именно нужно закупить сегодня.",
+                f5_title: "Непробиваемая защита", f5_desc: "Безотказная архитектура и автоматический бэкап гарантируют сохранность базы данных.",
+                f6_title: "Бизнес в вашем кармане", f6_desc: "Управляйте магазином из любой точки мира. Telegram-бот мгновенно пришлет отчет прямо в смартфон.",
+                price_label: "Тарифы", price_title: "Прозрачные цены без скрытых платежей", price_sub: "Выберите план для масштабов вашего бизнеса.",
+                p1_badge: "30 дней бесплатно", p1_title: "Старт", p_month: "/ мес", p_discount: "* Скидка при оплате от 6 месяцев", p1_desc: "Для небольших магазинов и начинающих.",
+                p2_badge: "Хит продаж", p2_title: "Профи", p2_desc: "Полный контроль, автоматизация и максима безопасность.",
+                p3_title: "Индивидуальный", p3_price: "Свой проект", p3_desc: "Для торговых сетей и бизнеса с нестандартными процессами.",
+                pf_1: "1 кассовое место", pf_2: "Базовый учет товаров", pf_3: "Поддержка сканера штрих-кодов", pf_4: "Локальная база данных", pf_5: "Стандартные отчеты", pf_all: "<b>Всё из тарифа «Старт»</b>", pf_6: "Неограниченное количество касс", pf_7: "Многопользовательский режим", pf_8: "Интеграция с Telegram-ботом", pf_9: "Облачный бэкап каждые 24 часа", pf_10: "Специфическое оборудование", pf_11: "Кастомные отчеты", pf_12: "БД на вашем сервере", pf_13: "Персональный менеджер 24/7",
+                btn_start_free: "Начать бесплатно", btn_choose_pro: "Выбрать Профи", btn_contact_us: "Связаться с нами",
+                int_label: "Интерфейс", int_title: "Современный и понятный дизайн", int_sub: "Обучение новых сотрудников занимает не более 15 минут.",
+                g1_title: "📊 Панель управления", g1_desc: "Вся информация о продажах и прибыли на одном экране.",
+                g2_title: "🛒 Интуитивная касса", g2_desc: "Быстрое сканирование и поддержка нескольких валют (₾, $, ₽).",
+                g3_title: "📦 Склад", g3_desc: "Контроль сроков годности и генерация штрих-кодов.",
+                g4_title: "👥 CRM", g4_desc: "База клиентов и система лояльности с баллами.",
+                cta_title: "Готовы вывести бизнес на новый уровень?", cta_sub: "Установите SHOP MASTER сегодня и получите полный контроль над своим магазином.", btn_goto_download: "Центр Загрузок и Чат →", cta_note: "Версия для Windows • Linux (Скоро) • Требуется PostgreSQL",
+                chat_button: "🤖 ИИ-Помощник", chat_title: "🤖 ИИ-Помощник ShopMaster", chat_clear: "Очистить", chat_placeholder: "Введите ваш вопрос...", chat_greeting: "Здравствуйте! Я умный ИИ-помощник. Чем могу помочь с программой SHOP MASTER?"
+            },
+            en: {
+                nav_features: "Features", nav_interface: "Interface", nav_pricing: "Pricing", nav_download: "Download & Chat", nav_btn: "Download App",
+                hero_badge: "🚀 Version 2.0 is out", hero_title: "Retail Automation with<br><em>SHOP MASTER</em>", hero_sub: "A powerful store management system: POS, inventory, CRM, and analytics in one interface.",
+                btn_more: "Learn More ↓", btn_free: "Download Free",
+                feat_label: "Why choose SHOP MASTER", feat_title: "Turn chaos into a system that works for you", feat_sub: "Forget about shortages and routine. The software takes full control and protects your money.",
+                f1_title: "Fast & Error-Free POS", f1_desc: "Speed up customer service by 2x. No random errors in change — every penny is strictly accounted for.",
+                f2_title: "Total Staff Control", f2_desc: "Reliable protection against theft. Set access rights so only you have access to finances and inventory.",
+                f3_title: "Magnet for New Sales", f3_desc: "Smart discount and loyalty systems keep customers coming back. Set up promotions that increase the average check.",
+                f4_title: "AI Purchasing Assistant", f4_desc: "Smart algorithm analyzes sales trends and suggests exactly what you need to buy today.",
+                f5_title: "Bulletproof Security", f5_desc: "A broken hard drive won't destroy your business anymore. Automated backups guarantee database safety.",
+                f6_title: "Business in your pocket", f6_desc: "Manage your store from anywhere. Our Telegram bot instantly sends shift closing reports to your smartphone.",
+                price_label: "Pricing", price_title: "Transparent prices, no hidden fees", price_sub: "Choose a plan that fits the scale of your business.",
+                p1_badge: "30 Days Free", p1_title: "Start", p_month: "/ mo", p_discount: "* Discount for 6+ months", p1_desc: "Perfect for small stores and beginners.",
+                p2_badge: "Best Seller", p2_title: "Pro", p2_desc: "Full control, automation, and maximum data security.",
+                p3_title: "Enterprise", p3_price: "Custom", p3_desc: "For retail chains and businesses with non-standard processes.",
+                pf_1: "1 POS terminal", pf_2: "Basic inventory management", pf_3: "Barcode scanner support", pf_4: "Local database", pf_5: "Standard sales reports", pf_all: "<b>Everything in Start plan</b>", pf_6: "Unlimited POS terminals", pf_7: "Multi-user mode (access rights)", pf_8: "Telegram bot integration", pf_9: "Cloud backup every 24h", pf_10: "Custom hardware integration", pf_11: "Custom reports", pf_12: "Database on your server", pf_13: "24/7 Personal manager",
+                btn_start_free: "Start Free", btn_choose_pro: "Choose Pro", btn_contact_us: "Contact Us",
+                int_label: "Interface", int_title: "Modern and clear design", int_sub: "Training new employees takes no more than 15 minutes.",
+                g1_title: "📊 Dashboard", g1_desc: "All sales and profit info on one screen.",
+                g2_title: "🛒 Intuitive POS", g2_desc: "Fast barcode scanning and multi-currency support.",
+                g3_title: "📦 Inventory", g3_desc: "Expiration date control and barcode generation.",
+                g4_title: "👥 CRM", g4_desc: "Customer base and points-based loyalty system.",
+                cta_title: "Ready to take your business to the next level?", cta_sub: "Install SHOP MASTER today and get full control of your store.", btn_goto_download: "Download Center & Chat →", cta_note: "Windows Version • Linux (Soon) • Requires PostgreSQL",
+                chat_button: "🤖 AI Assistant", chat_title: "🤖 ShopMaster AI", chat_clear: "Clear", chat_placeholder: "Type your question...", chat_greeting: "Hello! I am your smart AI assistant. How can I help you today?"
+            },
+            ka: {
+                nav_features: "შესაძლებლობები", nav_interface: "ინტერფეისი", nav_pricing: "ტარიფები", nav_download: "ჩამოტვირთვა", nav_btn: "გადმოწერა",
+                hero_badge: "🚀 ვერსია 2.0 უკვე ხელმისაწვდომია", hero_title: "ვაჭრობის ავტომატიზაცია<br><em>SHOP MASTER</em>-ით", hero_sub: "მაღაზიის მართვის მძლავრი სისტემა: სალარო, საწყობი, CRM და ანალიტიკა ერთ სივრცეში.",
+                btn_more: "გაიგეთ მეტი ↓", btn_free: "უფასოდ გადმოწერა",
+                feat_label: "რატომ ირჩევენ SHOP MASTER-ს", feat_title: "აქციეთ ქაოსი სისტემად, რომელიც თქვენზე მუშაობს", feat_sub: "დაივიწყეთ დანაკლისები. პროგრამა იღებს სრულ კონტროლს და იცავს თქვენს ფულს.",
+                f1_title: "სალარო რიგებისა და შეცდომების გარეშე", f1_desc: "დააჩქარეთ მომსახურება 2-ჯერ. თითოეული თეთრი (₾) მკაცრად კონტროლდება.",
+                f2_title: "პერსონალის ტოტალური კონტროლი", f2_desc: "საიმედო დაცვა ქურდობისგან. მართეთ წვდომის უფლებები.",
+                f3_title: "მაგნიტი ახალი გაყიდვებისთვის", f3_desc: "ფასდაკლებების ჭკვიანი სისტემა აიძულებს კლიენტებს დაბრუნდნენ.",
+                f4_title: "AI შემსყიდველი", f4_desc: "ალგორითმი აანალიზებს გაყიდვებს და გიკარნახებთ რა უნდა იყიდოთ დღეს.",
+                f5_title: "მონაცემთა დაცვა", f5_desc: "ავტომატური ბექაფი (Backup) გარანტიას გაძლევთ, რომ ბაზა არ დაიკარგება.",
+                f6_title: "ბიზნესი თქვენს ჯიბეში", f6_desc: "Telegram ბოტი მყისიერად გამოგიგზავნით ანგარიშს პირდაპირ სმარტფონში.",
+                price_label: "ტარიფები", price_title: "გამჭვირვალე ფასები", price_sub: "აირჩიეთ გეგმა, რომელიც იდეალურია თქვენი ბიზნესისთვის.",
+                p1_badge: "30 დღე უფასოდ", p1_title: "სტარტი", p_month: "/ თვე", p_discount: "* ფასდაკლება 6 თვის გადახდისას", p1_desc: "იდეალურია პატარა მაღაზიებისთვის.",
+                p2_badge: "პოპულარული", p2_title: "პროფი", p2_desc: "სრული კონტროლი, ავტომატიზაცია და უსაფრთხოება.",
+                p3_title: "ინდივიდუალური", p3_price: "თქვენი პროექტი", p3_desc: "ქსელური მაღაზიებისთვის.",
+                pf_1: "1 სალარო", pf_2: "საქონლის საბაზისო აღრიცხვა", pf_3: "შტრიხკოდების სკანერის მხარდაჭერა", pf_4: "ლოკალური ბაზა", pf_5: "სტანდარტული რეპორტები", pf_all: "<b>ყველაფერი «სტარტ» ტარიფიდან</b>", pf_6: "შეუზღუდავი სალაროები", pf_7: "მრავალმომხმარებლიანი რეჟიმი", pf_8: "Telegram-ბოტის ინტეგრაცია", pf_9: "Cloud ბექაფი 24 საათში ერთხელ", pf_10: "სპეციფიკური აპარატურა", pf_11: "კასტომური რეპორტები", pf_12: "ბაზა თქვენს სერვერზე", pf_13: "პერსონალური მენეჯერი 24/7",
+                btn_start_free: "დაწყება უფასოდ", btn_choose_pro: "პროფის არჩევა", btn_contact_us: "დაგვიკავშირდით",
+                int_label: "ინტერფეისი", int_title: "თანამედროვე დიზაინი", int_sub: "ახალი თანამშრომლის სწავლებას სჭირდება 15 წუთი.",
+                g1_title: "📊 სამუშაო დაფა (Dashboard)", g1_desc: "გაყიდვები და მოგება ერთ ეკრანზე.",
+                g2_title: "🛒 ინტუიციური სალარო", g2_desc: "სწრაფი სკანირება და მულტივალუტა (₾, $, ₽).",
+                g3_title: "📦 საწყობი", g3_desc: "ვადების კონტროლი და შტრიხკოდების გენერაცია.",
+                g4_title: "👥 CRM", g4_desc: "კლიენტთა ბაზა და ლოიალობის სისტემა.",
+                cta_title: "მზად ხართ ახალი ეტაპისთვის?", cta_sub: "დააინსტალირეთ SHOP MASTER და მიიღეთ სრული კონტროლი.", btn_goto_download: "გადმოწერა და ჩატი →", cta_note: "Windows ვერსია • Linux (მალე) • საჭიროებს PostgreSQL",
+                chat_button: "🤖 AI ასისტენტი", chat_title: "🤖 ShopMaster AI", chat_clear: "წაშლა", chat_placeholder: "შეიყვანეთ შეკითხვა...", chat_greeting: "გამარჯობა! მე ვარ ჭკვიანი AI ასისტენტი. რით შემიძლია დაგეხმაროთ?"
+            },
+            hy: {
+                nav_features: "Հնարավորություններ", nav_interface: "Ինտերֆեյս", nav_pricing: "Սակագներ", nav_download: "Ներբեռնել", nav_btn: "Ներբեռնել ծրագիրը",
+                hero_badge: "🚀 Տարբերակ 2.0-ը հասանելի է", hero_title: "Առևտրի ավտոմատացում<br><em>SHOP MASTER</em>-ի հետ", hero_sub: "Խանութի կառավարման հզոր համակարգ՝ դրամարկղ, պահեստ, CRM և վերլուծություն մեկ միջավայրում:",
+                btn_more: "Իմանալ ավելին ↓", btn_free: "Անվճար ներբեռնում",
+                feat_label: "Ինչու ընտրել SHOP MASTER-ը", feat_title: "Քաոսը վերածեք համակարգի", feat_sub: "Ծրագիրը վերցնում է ամբողջ վերահսկողությունը և պաշտպանում ձեր գումարը:",
+                f1_title: "Արագ և ճշգրիտ դրամարկղ", f1_desc: "Արագացրեք սպասարկումը 2 անգամ: Յուրաքանչյուր լումա խստորեն հաշվառվում է:",
+                f2_title: "Անձնակազմի վերահսկողություն", f2_desc: "Հուսալի պաշտպանություն գողությունից: Կարգավորեք մուտքի իրավունքները:",
+                f3_title: "Նոր վաճառքների մագնիս", f3_desc: "Զեղչերի խելացի համակարգը ստիպում է հաճախորդներին վերադառնալ:",
+                f4_title: "AI Գնումների օգնական", f4_desc: "Ալգորիթմը վերլուծում է վաճառքը և հուշում, թե ինչ է պետք գնել այսօր:",
+                f5_title: "Հուսալի պաշտպանություն", f5_desc: "Ավտոմատ պահուստավորումը երաշխավորում է տվյալների բազայի անվտանգությունը:",
+                f6_title: "Բիզնեսը ձեր գրպանում", f6_desc: "Telegram բոտը ակնթարթորեն հաշվետվություն է ուղարկում անմիջապես ձեր հեռախոսին:",
+                price_label: "Սակագներ", price_title: "Թափանցիկ գներ", price_sub: "Ընտրեք պլան, որը համապատասխանում է ձեր բիզնեսին:",
+                p1_badge: "30 օր անվճար", p1_title: "Ստարտ", p_month: "/ ամիս", p_discount: "* Զեղչ 6 ամսվա վճարման դեպքում", p1_desc: "Փոքր խանութների համար:",
+                p2_badge: "Ամենապահանջված", p2_title: "Պրոֆի", p2_desc: "Ամբողջական վերահսկողություն և ավտոմատացում:",
+                p3_title: "Անհատական", p3_price: "Ձեր նախագիծը", p3_desc: "Ցանցային խանութների համար:",
+                pf_1: "1 դրամարկղ", pf_2: "Ապրանքների բազային հաշվառում", pf_3: "Շտրիխ կոդերի սկաների աջակցություն", pf_4: "Տեղական բազա", pf_5: "Ստանդարտ հաշվետվություններ", pf_all: "<b>Ամեն ինչ «Ստարտ» պլանից</b>", pf_6: "Անսահմանափակ դրամարկղեր", pf_7: "Բազմակի օգտվողների ռեժիմ", pf_8: "Telegram բոտի ինտեգրում", pf_9: "Ամպային պահուստավորում 24 ժամը մեկ", pf_10: "Հատուկ սարքավորումներ", pf_11: "Անհատական հաշվետվություններ", pf_12: "Բազան ձեր սերվերում", pf_13: "Անձնական մենեջեր 24/7",
+                btn_start_free: "Սկսել անվճար", btn_choose_pro: "Ընտրել Պրոֆի", btn_contact_us: "Կապվել մեզ հետ",
+                int_label: "Ինտերֆեյս", int_title: "Ժամանակակից դիզայն", int_sub: "Նոր աշխատակցի ուսուցումը տևում է 15 րոպե:",
+                g1_title: "📊 Կառավարման վահանակ", g1_desc: "Վաճառքի և շահույթի մասին տեղեկատվություն մեկ էկրանին:",
+                g2_title: "🛒 Ինտուիտիվ դրամարկղ", g2_desc: "Շտրիխ կոդերի արագ սկանավորում և բազմարժույթի աջակցություն:",
+                g3_title: "📦 Պահեստ", g3_desc: "Պիտանելիության ժամկետների վերահսկում:",
+                g4_title: "👥 CRM", g4_desc: "Հաճախորդների բազա և բոնուսային համակարգ:",
+                cta_title: "Պատրա՞ստ եք զարգացնել ձեր բիզնեսը:", cta_sub: "Տեղադրեք SHOP MASTER-ը և ստացեք ամբողջական վերահսկողություն:", btn_goto_download: "Ներբեռնում և Չատ →", cta_note: "Windows տարբերակ • Linux (Շուտով) • Պահանջվում է PostgreSQL",
+                chat_button: "🤖 AI Օգնական", chat_title: "🤖 ShopMaster AI", chat_clear: "Մաքրել", chat_placeholder: "Մուտքագրեք ձեր հարցը...", chat_greeting: "Բարև ձեզ: Ես ձեր խելացի AI օգնականն եմ: Ինչպե՞ս կարող եմ օգնել ձեզ:"
+            }
+        };
+
+        // ==========================================
+        // 2. АВТООПРЕДЕЛЕНИЕ ЯЗЫКА
+        // ==========================================
+        function getInitialLanguage() {
+            const savedLang = localStorage.getItem('shopMasterLang');
+            if (savedLang) return savedLang; // Если уже выбирал — оставляем
+
+            // Автоопределение по браузеру
+            const browserLang = (navigator.language || navigator.userLanguage).toLowerCase();
+            
+            if (browserLang.startsWith('ru')) return 'ru';
+            if (browserLang.startsWith('ka')) return 'ka'; // Грузинский
+            if (browserLang.startsWith('hy')) return 'hy'; // Армянский
+            
+            return 'en'; // По умолчанию всем остальным — Английский
+        }
+
+        let currentLang = getInitialLanguage();
+
+        // ==========================================
+        // 3. ЛОГИКА КАСТОМНОГО МЕНЮ
+        // ==========================================
+        const langBtn = document.getElementById('lang-btn');
+        const langDropdown = document.getElementById('lang-dropdown');
+
+        // Открытие/закрытие меню
+        langBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            langDropdown.classList.toggle('active');
+        });
+
+        // Закрываем при клике вне меню
+        document.addEventListener('click', () => {
+            langDropdown.classList.remove('active');
+        });
+
+        // Клик по языку в меню
+        document.querySelectorAll('.lang-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const selectedLang = e.currentTarget.getAttribute('data-lang');
+                applyLanguage(selectedLang);
+            });
+        });
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('shopMasterLang', lang);
+            
+            // ОБНОВЛЕННЫЙ БЛОК: Только текст EN, RU, GE, AM
+            if(langBtn) {
+                const flags = { 
+                    'en': 'EN', 
+                    'ru': 'RU', 
+                    'ka': 'GE', 
+                    'hy': 'AM' 
+                };
+                langBtn.innerHTML = flags[lang] || 'EN';
+            }
+            
+            // Перевод обычных тегов
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang] && i18n[lang][key]) el.innerHTML = i18n[lang][key];
+            });
+
+            // Перевод плейсхолдеров (полей ввода в чате)
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (i18n[lang] && i18n[lang][key]) el.placeholder = i18n[lang][key];
+            });
+
+            // Обновляем стартовое сообщение в чате, если там пусто
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages && chatMessages.innerHTML.trim() === '') {
+                chatMessages.innerHTML = `<div class="message bot">${i18n[lang].chat_greeting}</div>`;
+            }
+        }
+
+        // ==========================================
+        // 4. ИИ ЧАТ С ПАМЯТЬЮ И УМНЫМ ПРОМПТОМ
+        // ==========================================
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatWindow = document.getElementById('chat-window');
+        const chatClose = document.getElementById('chat-close');
+        const chatClear = document.getElementById('chat-clear');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+
+        let aiContext = JSON.parse(localStorage.getItem('shopMasterAiContext')) || [];
+
+        function saveChatData() {
+            localStorage.setItem('shopMasterChatHTML', chatMessages.innerHTML);
+            localStorage.setItem('shopMasterAiContext', JSON.stringify(aiContext));
+        }
+
+        function loadChatData() {
+            const savedHTML = localStorage.getItem('shopMasterChatHTML');
+            if (savedHTML) chatMessages.innerHTML = savedHTML;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        loadChatData();
+        applyLanguage(currentLang);
+
+        chatToggle.addEventListener('click', () => {
+            chatWindow.classList.toggle('active');
+            if(chatWindow.classList.contains('active')) chatInput.focus();
+        });
+
+        chatClose.addEventListener('click', () => chatWindow.classList.remove('active'));
+
+        chatClear.addEventListener('click', () => {
+            if(confirm('Очистить историю? / Clear history?')) {
+                localStorage.removeItem('shopMasterChatHTML');
+                localStorage.removeItem('shopMasterAiContext');
+                aiContext = [];
+                chatMessages.innerHTML = `<div class="message bot">${i18n[currentLang].chat_greeting}</div>`;
+                saveChatData();
+            }
+        });
+
+        function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
+
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            chatInput.value = '';
+            const loadingId = addMessage('...', 'bot');
+
+            try {
+                const promptString = `Твоя роль: Умный ИИ-ассистент программы SHOP MASTER. Это профессиональное ПО (касса, склад, аналитика, поддержка мультивалютности включая грузинский лари ₾). Пользователь на сайте выбрал язык: ${currentLang}. Отвечай строго на этом языке! Вопрос клиента: ${text}`;
+
+                const response = await fetch('http://localhost:11434/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'llama3', 
+                        prompt: promptString,
+                        context: aiContext,
+                        stream: false
+                    })
+                });
+
+                if (!response.ok) throw new Error('Ошибка сети');
+                
+                const data = await response.json();
+                aiContext = data.context;
+                updateMessage(loadingId, data.response);
+                
+            } catch (error) {
+                updateMessage(loadingId, 'Server error / Ошибка сервера. Пожалуйста, обратитесь к нашему Telegram боту.');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            msgDiv.textContent = text;
+            const id = 'msg-' + Date.now();
+            msgDiv.id = id;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            saveChatData();
+            return id;
+        }
+
+        function updateMessage(id, text) {
+            const msgDiv = document.getElementById(id);
+            if (msgDiv) {
+                msgDiv.textContent = text;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                saveChatData();
+            }
+        }
+
+        // ==========================================
+        // 5. ЛАЙТБОКС ГАЛЕРЕЯ
+        // ==========================================
+        const screenshots = [
+            'Start.png', 'Kassa.png', 'Sklad.png', 'Marketing.png'
+        ];
+
+        let currentIndex = 0;
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        function openLightbox(index) {
+            currentIndex = index;
+            lightboxImg.src = screenshots[currentIndex];
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function navigate(direction) {
+            currentIndex += direction;
+            if (currentIndex < 0) currentIndex = screenshots.length - 1;
+            if (currentIndex >= screenshots.length) currentIndex = 0;
+            lightboxImg.src = screenshots[currentIndex];
+        }
+
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) closeLightbox();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') navigate(-1);
+            if (e.key === 'ArrowRight') navigate(1);
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.screenshot-card, .feature-card, .pricing-card, .section-label, .section-title, .section-sub').forEach(el => observer.observe(el));
+    </script>
+	<script>
+    // Скрытая отправка данных о посетителе на прокси-папку сервера
+    fetch('/api-counter/visit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Secret-Key': 'ShopMasterSecretSiteKey2026' // Тот же ключ, что и в настройках бота
+        },
+        body: JSON.stringify({
+            page: window.location.pathname.split('/').pop() || 'index.html', // Название файла страницы
+            lang: localStorage.getItem('shopMasterLang') || 'unknown' // Текущий выбранный язык сайта
+        })
+    }).catch(err => console.log('Counter error ignored'));
+</script>
+	
+</body>
+</html>

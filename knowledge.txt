@@ -1,0 +1,37 @@
+ПРОЕКТ: ShopMaster (RetailShopWPF)
+ОПИСАНИЕ: Профессиональная POS-система для магазинов на C# (WPF) и PostgreSQL.
+
+ТЕХНИЧЕСКИЕ МОДУЛИ И КЛАССЫ:
+1. КЛИЕНТЫ (Customer.cs):
+   - Поля: Name, Phone, Email, TelegramChatId, BonusPoints, TotalDebt.
+   - Валюта: Долг отображается через FormattedDebt (использует CurrencyService для ₾).
+   
+2. СКИДКИ (DiscountPlan.cs):
+   - Планы скидок настраиваются по дням недели (DayOfWeek) или датам.
+   - Поля: DiscountPercent, IsActive, StartTime, EndTime.
+   - TargetType может быть: "All", "Category", "Warehouse", "Product".
+
+3. РАСХОДЫ (CostItem.cs):
+   - Таблица для учета операционных расходов (аренда, свет, зарплата).
+   - Поля: Name, Amount, Date.
+
+4. АУДИТ (AuditLog.cs):
+   - Логирование всех действий: Продажа, Добавление, Изменение, Удаление товара.
+   - Содержит: UserName, OperationType, EntityName, Barcode, Description.
+
+5. АВТОЗАКУПКИ (AutoPurchaseItem.cs):
+   - Рекомендации по закупкам на основе продаж за 30 дней.
+   - Поля: SoldInLast30Days, AverageDailySales, RecommendedOrderQty.
+
+6. БАЗА ДАННЫХ (DbServerManager.cs):
+   - Сервер: PostgreSQL, порт 5432, база 'retailshopdb'.
+   - Сетевые настройки: управление файлом pg_hba.conf, настройка брандмауэра (netsh).
+   - Оптимизация: shared_buffers 512MB, work_mem 32MB.
+
+ВАЛЮТА: 
+- Основная валюта — грузинский лари (₾).
+
+ПРАВИЛА ОТВЕТА:
+- Техническая документация всегда выше общих знаний.
+- Если вопрос касается БД, ссылайся на DbServerManager.
+- Если вопрос о долге клиента, ссылайся на модель Customer.
